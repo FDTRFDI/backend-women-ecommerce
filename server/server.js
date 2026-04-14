@@ -2,8 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import { fileURLToPath } from "url";
 
-// راوترات المشروع
+// Routers
 import cartRoutes from "./routes/cart.js";
 import orderRoutes from "./routes/orders.js";
 import adminRoutes from "./routes/adminRoutes.js";
@@ -14,22 +15,35 @@ import authRoutes from "./routes/authRoutes.js";
 import categories from "./routes/categories.js";
 import categoryProductsRoutes from "./routes/category-products.routes.js";
 
+// PostgreSQL connection
+import "./config/db.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Fix __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /* =====================
    MIDDLEWARE
 ===================== */
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+
+// Allow frontend domain dynamically
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// خدمة الملفات المرفوعة
-app.use("/uploads", express.static("uploads"));
+// Static uploads folder
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* =====================
    ROUTES
@@ -41,11 +55,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/legal", legalRoutes);
 app.use("/api/auth", authRoutes);
-
-// ✔ الروت الصحيح للكاتجوري
 app.use("/api/categories", categories);
-
-// ✔ الروت الصحيح لمنتجات الكاتجوري
 app.use("/api/category-products", categoryProductsRoutes);
 
 /* =====================
@@ -56,4 +66,6 @@ app.get("/", (req, res) => res.send("API Running 🚀"));
 /* =====================
    START SERVER
 ===================== */
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`✅ Server running on port ${PORT}`)
+);

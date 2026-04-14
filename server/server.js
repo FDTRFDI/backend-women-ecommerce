@@ -1,6 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -18,8 +20,6 @@ import categoryProductsRoutes from "./routes/category-products.routes.js";
 // PostgreSQL connection
 import "./config/db.js";
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -31,7 +31,6 @@ const __dirname = path.dirname(__filename);
    MIDDLEWARE
 ===================== */
 
-// Allow frontend domain dynamically
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -48,6 +47,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 /* =====================
    ROUTES
 ===================== */
+
 app.use("/api/cart", cartRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productsRoutes);
@@ -61,11 +61,13 @@ app.use("/api/category-products", categoryProductsRoutes);
 /* =====================
    TEST ROUTE
 ===================== */
+
 app.get("/", (req, res) => res.send("API Running 🚀"));
 
 /* =====================
    START SERVER
 ===================== */
-app.listen(PORT, () =>
-  console.log(`✅ Server running on port ${PORT}`)
-);
+
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});

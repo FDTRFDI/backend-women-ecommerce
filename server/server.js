@@ -1,11 +1,21 @@
-// ❌ لا نستخدم dotenv في Render
-// import dotenv from "dotenv";
-// dotenv.config();
+import dotenv from "dotenv";
+dotenv.config({ path: "./.env" }); // تحميل ملف env
 
+import fs from "fs"; // لفحص وجود ملف .env
 import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+
+// Fix __dirname in ES modules (لازم يكون قبل استخدام __filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Debug ENV (مهم جدًا للتأكد)
+console.log("RUNNING FILE:", __filename);
+console.log("ENV FILE EXISTS:", fs.existsSync("./.env"));
+console.log("RAW DATABASE_URL:", process.env.DATABASE_URL);
+console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
 
 // Routers
 import cartRoutes from "./routes/cart.js";
@@ -18,15 +28,11 @@ import authRoutes from "./routes/authRoutes.js";
 import categories from "./routes/categories.js";
 import categoryProductsRoutes from "./routes/category-products.routes.js";
 
-// PostgreSQL connection
+// DB connection (pg)
 import "./config/db.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Fix __dirname in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /* =====================
    MIDDLEWARE
@@ -34,7 +40,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: "*",
     credentials: true,
   })
 );
@@ -63,7 +69,9 @@ app.use("/api/category-products", categoryProductsRoutes);
    TEST ROUTE
 ===================== */
 
-app.get("/", (req, res) => res.send("API Running 🚀"));
+app.get("/", (req, res) => {
+  res.send("API Running 🚀");
+});
 
 /* =====================
    START SERVER

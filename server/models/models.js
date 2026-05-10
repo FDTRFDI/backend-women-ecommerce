@@ -1,7 +1,9 @@
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 
-dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -18,7 +20,6 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
     : {},
 });
 
-// Test connection
 sequelize
   .authenticate()
   .then(() => console.log("✅ Connected to PostgreSQL"))
